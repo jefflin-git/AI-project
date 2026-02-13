@@ -1,0 +1,28 @@
+version: "3.8"
+services:
+  nginx:
+    build: ./proxy/nginx
+    container_name: nginx
+    restart: always
+    ports:
+      - "80:80"
+    environment:
+      - TZ=Asia/Taipei
+    depends_on:
+      - front-end
+      - back-end
+
+
+  front-end:
+    build: ./front-end/angular
+    container_name: front-end
+    restart: always
+    environment:
+      - TZ=Asia/Taipei
+  
+  back-end:
+    build: ./back-end/fastapi
+    container_name: back-end
+    restart: always
+    environment:
+      - TZ=Asia/Taipei
