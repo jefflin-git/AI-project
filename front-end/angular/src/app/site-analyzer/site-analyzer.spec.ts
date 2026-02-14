@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { SiteAnalyzer } from './site-analyzer';
+import { SiteAnalyzerComponent } from './site-analyzer';
 
-describe('SiteAnalyzer', () => {
-  let component: SiteAnalyzer;
-  let fixture: ComponentFixture<SiteAnalyzer>;
+describe('SiteAnalyzerComponent', () => {
+  let component: SiteAnalyzerComponent;
+  let fixture: ComponentFixture<SiteAnalyzerComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [SiteAnalyzer]
+      imports: [SiteAnalyzerComponent]
     })
-    .compileComponents();
+      .compileComponents();
 
-    fixture = TestBed.createComponent(SiteAnalyzer);
+    fixture = TestBed.createComponent(SiteAnalyzerComponent);
     component = fixture.componentInstance;
     await fixture.whenStable();
   });

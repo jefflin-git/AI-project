@@ -14,8 +14,7 @@
                 <div class="mb-3">
                     <label class="form-label fw-bold">所在城市</label>
                     <select class="form-select" [(ngModel)]="selectedCity" name="city" (change)="updateDistricts()">
-                        <option value="臺北市">臺北市</option>
-                        <option value="新北市">新北市</option>
+                        <option *ngFor="let c of cities" [value]="c">{{c}}</option>
                     </select>
                 </div>
 
@@ -37,8 +36,7 @@
                 <div class="mb-3">
                     <label class="form-label fw-bold">擬開設品牌</label>
                     <select class="form-select" [(ngModel)]="selectedBrand" name="brand">
-                        <option>便利商店</option>
-                        <option>超市及藥妝</option>
+                        <option *ngFor="let b of brands" [value]="b">{{b}}</option>
                     </select>
                 </div>
 

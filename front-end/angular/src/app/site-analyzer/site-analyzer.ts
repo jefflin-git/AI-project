@@ -1,7 +1,9 @@
-import { Component, OnInit, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, AfterViewInit, ViewChild, ElementRef, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import Chart from 'chart.js/auto';
+import { GeoService } from '../../services/geo';
+import { BrandService } from '../../services/brand';
 
 @Component({
   selector: 'app-site-analyzer',
@@ -11,65 +13,96 @@ import Chart from 'chart.js/auto';
   styleUrls: ['./site-analyzer.css']
 })
 export class SiteAnalyzerComponent implements OnInit {
-  // 模擬資料庫
-  db: any = {
-    "臺北市": {
-      "中正區": ["板溪里", "網溪里", "頂東里", "水源里"],
-      "大安區": ["古莊里", "龍泉里", "學府里"],
-      "信義區": ["西村里", "正和里", "興雅里"]
-    },
-    "新北市": {
-      "板橋區": ["深丘里", "香邱里", "西安里", "東丘里"],
-      "新莊區": ["立言里", "立泰里", "中平里"],
-      "八里區": ["舊城里", "訊塘里", "龍源里"]
-    }
-  };
+  // 服務
+  private geoService = new GeoService();
+  private brandService = new BrandService();
 
   // 表單綁定變數
-  selectedCity = '臺北市';
-  selectedDistrict = '';
-  selectedNeighborhood = '';
-  selectedBrand = '便利商店';
+  selectedCity: string = '';
+  selectedDistrict: string = '';
+  selectedNeighborhood: string = '';
+  selectedBrand: string = '';
+
+  // 城市下拉選單
+  cities: string[] = [];
+  // 行政區下拉選單
   districts: string[] = [];
+  // 里別下拉選單
   neighborhoods: string[] = [];
+  // 品牌下拉選單
+  brands: string[] = [];
 
   // 狀態控制
-  isLoading = false;
-  showResult = false;
+  isLoading: boolean = false;
+  showResult: boolean = false;
 
   // 數據與圖表
-  score = 0;
-  pop = 0;
-  income = 0;
-  comp = 0;
-  aiInsight = '';
+  score: number = 0;
+  pop: number = 0;
+  income: number = 0;
+  comp: number = 0;
+  aiInsight: string = '';
 
   private charts: any = {};
 
-  ngOnInit() {
-    this.updateDistricts();
+  async ngOnInit() {
+    await this.SetDefault();
   }
 
-  updateDistricts() {
-    this.districts = Object.keys(this.db[this.selectedCity]);
+  async SetDefault() {
+    await this.updateCity();
+    this.selectedCity = this.cities[0];
+    await this.updateDistricts();
     this.selectedDistrict = this.districts[0];
-    this.updateNeighborhoods();
+    await this.updateNeighborhoods();
+    this.selectedNeighborhood = this.neighborhoods[0];
+    await this.updateBrands();
+    this.selectedBrand = this.brands[0];
   }
 
-  updateNeighborhoods() {
-    this.neighborhoods = this.db[this.selectedCity][this.selectedDistrict] || [];
-    this.selectedNeighborhood = this.neighborhoods[0];
+  async updateCity() {
+    this.selectedDistrict = '';
+    this.selectedNeighborhood = '';
+    this.cities = await this.geoService.getCitiesList();
+    console.log("cities", this.cities);
+  }
+
+  async updateDistricts() {
+    this.selectedNeighborhood = '';
+    this.districts = await this.geoService.getDistrictsList(this.selectedCity);
+  }
+
+  async updateNeighborhoods() {
+    this.selectedNeighborhood = '';
+    this.neighborhoods = await this.geoService.getNeighborhoodsList(this.selectedCity, this.selectedDistrict);
+  }
+
+  async updateBrands() {
+    this.brands = await this.brandService.getBrandsList();
+  }
+
+  async checkGeo() {
+    const result = await this.geoService.is_valid_geo(this.selectedCity, this.selectedDistrict, this.selectedNeighborhood);
+    if (result) {
+      return true;
+    }
+    return false;
   }
 
   runPrediction() {
-    this.isLoading = true;
+    if (!this.checkGeo()) {
+      console.log(this.selectedCity, this.selectedDistrict, this.selectedNeighborhood);
+      alert('請完整選擇縣市、行政區與里別');
+      return;
+    }
+    // this.isLoading = true;
 
     // 模擬 API 延遲
-    setTimeout(() => {
-      this.isLoading = false;
-      this.showResult = true;
-      this.generateResult();
-    }, 800);
+    // setTimeout(() => {
+    //   this.isLoading = false;
+    //   this.showResult = true;
+    //   this.generateResult();
+    // }, 8);
   }
 
   generateResult() {
