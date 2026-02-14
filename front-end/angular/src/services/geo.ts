@@ -1,4 +1,4 @@
-import { BACK_END_URL, HEADERS } from "../app/common";
+import { BACK_END_URL, HEADERS } from "../common";
 
 export class GeoService {
     // 取得所有城市列表

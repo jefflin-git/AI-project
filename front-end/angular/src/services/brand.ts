@@ -1,4 +1,4 @@
-import { BACK_END_URL, HEADERS } from "../app/common";
+import { BACK_END_URL, HEADERS } from "../common";
 
 export class BrandService {
     // 取得所有品牌列表
