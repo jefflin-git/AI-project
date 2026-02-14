@@ -20,4 +20,4 @@ COPY . .
 RUN npm run build -- --configuration production
 
 # 5. 啟動
-CMD ["ng", "serve", "--host", "0.0.0.0", "--port", "80"]
+CMD ["ng", "serve", "--host", "0.0.0.0", "--port", "${PORT:-4200}"]
