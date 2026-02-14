@@ -60,7 +60,11 @@
         },
         "serve": {
           "builder": "@angular/build:dev-server",
-          "options": {},
+          "options": {
+            "allowedHosts": [
+              "ai-project-frontend-438992102752.asia-east1.run.app"
+            ]
+          },
           "configurations": {
             "production": {
               "buildTarget": "angular:build:production"
