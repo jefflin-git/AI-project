@@ -1,14 +1,19 @@
-from repositories.geo import get_city_list_from_csv, get_district_list_from_csv, get_neighborhood_list_from_csv
+from repositories.geo import GeoRepository
 
+class GeoService:
+    @staticmethod
+    def get_city_list() -> list[str]:
+        return GeoRepository.get_city_list()
 
-def get_city_list():
-    return get_city_list_from_csv()
+    @staticmethod
+    def get_district_list(city: str) -> list[str]:
+        return GeoRepository.get_district_list(city)
 
-def get_district_list(city):
-    return get_district_list_from_csv(city)
+    @staticmethod
+    def get_neighborhood_list(city: str, district: str) -> list[str]:
+        return GeoRepository.get_neighborhood_list(city, district)
 
-def get_neighborhood_list(city, district):
-    return get_neighborhood_list_from_csv(city, district)
-
-def is_valid_geo(city, district, neighborhood):
-    return city in get_city_list() and district in get_district_list(city) and neighborhood in get_neighborhood_list(city, district)
+    @staticmethod
+    def check_valid_geo(city: str, district: str, neighborhood: str) -> bool:
+        result = GeoRepository.get_neighborhood_list(city, district)
+        return neighborhood in result

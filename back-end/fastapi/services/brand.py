@@ -1,4 +1,6 @@
-from repositories.brand import get_brands_list_from_list
+from repositories.brand import BrandRepository
 
-def get_brands_list():
-    return get_brands_list_from_list()
+class BrandService:
+    @staticmethod
+    def get_brand_list() -> list[str]:
+        return BrandRepository.get_brand_list()

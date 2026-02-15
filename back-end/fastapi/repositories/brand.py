@@ -1,2 +1,4 @@
-def get_brands_list_from_list():
-    return ["便利商店", "超市及藥妝"]
+class BrandRepository:
+    @staticmethod
+    def get_brand_list() -> list[str]:
+        return ["便利商店", "超市及藥妝"]
