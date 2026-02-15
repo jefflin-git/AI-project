@@ -48,21 +48,22 @@
         </div>
 
         <div class="col-md-9 col-lg-10 p-4">
-            <div *ngIf="!showResult" class="text-center py-5">
+            <div [hidden]="showResult" class="text-center py-5">
                 <img src="https://cdn-icons-png.flaticon.com/512/1256/1256650.png" width="150" class="mb-4 opacity-50">
                 <h3 class="text-muted">請在左側選擇參數並點擊「開始評估」</h3>
             </div>
 
-            <div *ngIf="showResult">
+            <div [hidden]="!showResult">
                 <div class="row mb-4">
                     <div class="col-md-5">
                         <div class="card h-100 text-center d-flex flex-column justify-content-center">
-                            <h6 class="text-muted text-uppercase mb-2">新店銷售指標預估</h6>
-                            <div class="score-display" [style.color]="getScoreClass().color">{{ score | number:'1.1-1'
+                            <h6 class="text-muted text-uppercase mb-2">營運推薦分數</h6>
+                            <div class="operation-score-display" [style.color]="getOperationScoreClass().color">{{
+                                prediction.operationScore | number:'1.1-1'
                                 }}</div>
                             <div class="mt-2">
-                                <span class="badge rounded-pill badge-score" [ngClass]="getScoreClass().badge">
-                                    {{ getScoreClass().text }}
+                                <span class="badge rounded-pill badge-score" [ngClass]="getOperationScoreClass().badge">
+                                    {{ getOperationScoreClass().text }}
                                 </span>
                             </div>
                         </div>
@@ -71,14 +72,15 @@
                         <div class="card h-100 border-primary border-opacity-25">
                             <div class="card-body">
                                 <h5 class="card-title text-primary"><i class="fa-solid fa-robot me-2"></i>AI 洞察報告</h5>
-                                <p class="card-text" [innerHTML]="aiInsight"></p>
+                                <p class="card-text" [innerHTML]="prediction.aiInsight"></p>
                                 <div class="d-flex gap-3 mt-3">
                                     <div class="d-flex align-items-center">
                                         <div class="bg-light p-2 rounded-circle me-2"><i
                                                 class="fa-solid fa-users text-info"></i></div>
                                         <div>
                                             <small class="text-muted d-block">里人口數</small>
-                                            <span class="fw-bold">{{ pop | number }} 人</span>
+                                            <span class="fw-bold">{{ prediction.totalPopulation.neighborhood | number }}
+                                                人</span>
                                         </div>
                                     </div>
                                     <div class="d-flex align-items-center">
@@ -86,7 +88,7 @@
                                                 class="fa-solid fa-sack-dollar text-success"></i></div>
                                         <div>
                                             <small class="text-muted d-block">收入中位數</small>
-                                            <span class="fw-bold">{{ income }} 萬元</span>
+                                            <span class="fw-bold">{{ prediction.medianIncome.neighborhood }} 萬元</span>
                                         </div>
                                     </div>
                                     <div class="d-flex align-items-center">
@@ -94,7 +96,7 @@
                                                 class="fa-solid fa-shop text-danger"></i></div>
                                         <div>
                                             <small class="text-muted d-block">周邊競店</small>
-                                            <span class="fw-bold">{{ comp }} 家</span>
+                                            <span class="fw-bold">{{ prediction.competitorCount }} 家</span>
                                         </div>
                                     </div>
                                 </div>
