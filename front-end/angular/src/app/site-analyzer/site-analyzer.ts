@@ -61,28 +61,30 @@ export class SiteAnalyzerComponent implements OnInit {
   }
 
   async updateCity() {
+    this.selectedCity = '';
     this.selectedDistrict = '';
     this.selectedNeighborhood = '';
-    this.cities = await this.geoService.getCitiesList();
+    this.cities = await this.geoService.getCityList();
     console.log("cities", this.cities);
   }
 
   async updateDistricts() {
+    this.selectedDistrict = '';
     this.selectedNeighborhood = '';
-    this.districts = await this.geoService.getDistrictsList(this.selectedCity);
+    this.districts = await this.geoService.getDistrictList(this.selectedCity);
   }
 
   async updateNeighborhoods() {
     this.selectedNeighborhood = '';
-    this.neighborhoods = await this.geoService.getNeighborhoodsList(this.selectedCity, this.selectedDistrict);
+    this.neighborhoods = await this.geoService.getNeighborhoodList(this.selectedCity, this.selectedDistrict);
   }
 
   async updateBrands() {
-    this.brands = await this.brandService.getBrandsList();
+    this.brands = await this.brandService.getBrandList();
   }
 
   async checkGeo() {
-    const result = await this.geoService.is_valid_geo(this.selectedCity, this.selectedDistrict, this.selectedNeighborhood);
+    const result = await this.geoService.checkValidGeo(this.selectedCity, this.selectedDistrict, this.selectedNeighborhood);
     if (result) {
       return true;
     }

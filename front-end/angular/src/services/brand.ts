@@ -2,7 +2,7 @@ import { BACK_END_URL, HEADERS } from "../common";
 
 export class BrandService {
     // 取得所有品牌列表
-    async getBrandsList(): Promise<string[]> {
+    async getBrandList(): Promise<string[]> {
         try {
             const response = await fetch(`${BACK_END_URL}/brands`, { headers: HEADERS });
             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);

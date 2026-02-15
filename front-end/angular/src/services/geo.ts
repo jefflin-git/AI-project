@@ -2,7 +2,7 @@ import { BACK_END_URL, HEADERS } from "../common";
 
 export class GeoService {
     // 取得所有城市列表
-    async getCitiesList(): Promise<string[]> {
+    async getCityList(): Promise<string[]> {
         try {
             console.log("BACK_END_URL", BACK_END_URL);
             const response = await fetch(`${BACK_END_URL}/cities`, { headers: HEADERS });
@@ -15,7 +15,7 @@ export class GeoService {
     }
 
     // 取得行政區列表
-    async getDistrictsList(cityName: string): Promise<string[]> {
+    async getDistrictList(cityName: string): Promise<string[]> {
         try {
             const response = await fetch(`${BACK_END_URL}/districts/${cityName}`, { headers: HEADERS });
             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -27,7 +27,7 @@ export class GeoService {
     }
 
     // 取得里列表
-    async getNeighborhoodsList(cityName: string, districtName: string): Promise<string[]> {
+    async getNeighborhoodList(cityName: string, districtName: string): Promise<string[]> {
         try {
             const response = await fetch(`${BACK_END_URL}/neighborhoods/${cityName}/${districtName}`, { headers: HEADERS });
             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -39,11 +39,12 @@ export class GeoService {
     }
 
     // 檢查地理資訊是否有效
-    async is_valid_geo(cityName: string, districtName: string, neighborhoodName: string): Promise<boolean> {
+    async checkValidGeo(cityName: string, districtName: string, neighborhoodName: string): Promise<boolean> {
         try {
-            const response = await fetch(`${BACK_END_URL}/geo_check/${cityName}/${districtName}/${neighborhoodName}`, { headers: HEADERS });
+            const response = await fetch(`${BACK_END_URL}/geo-check/${cityName}/${districtName}/${neighborhoodName}`, { headers: HEADERS });
             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-            return await response.json();
+            const data = await response.json();
+            return data.is_valid;
         } catch (error) {
             console.error("無法檢查地理資訊:", error);
             return false;
