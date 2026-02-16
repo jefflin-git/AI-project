@@ -9,6 +9,7 @@ import { PredictionService } from '../../services/prediction';
 
 import { IPrediction } from '../../value-objects/prediction';
 import { Prediction } from '../../value-objects/prediction';
+import { Operation } from '../../value-objects/operation';
 import { TotalPopulation } from '../../value-objects/population';
 import { MedianIncome } from '../../value-objects/income';
 import { Radar } from '../../value-objects/radar';
@@ -49,7 +50,7 @@ export class SiteAnalyzerComponent implements OnInit {
 
   // 數據與圖表
   prediction: IPrediction = new Prediction(
-    0,
+    new Operation(0, ""),
     new TotalPopulation(0, 0),
     new MedianIncome(0, 0),
     0,
@@ -132,10 +133,10 @@ export class SiteAnalyzerComponent implements OnInit {
     this.renderCharts();
   }
 
-  getOperationScoreClass() {
-    if (this.prediction.operationScore >= 90) return { badge: 'bg-success', text: '極具潛力 (Prime)', color: '#198754' };
-    if (this.prediction.operationScore >= 70) return { badge: 'bg-warning text-dark', text: '潛力良好 (Good)', color: '#ffc107' };
-    return { badge: 'bg-danger', text: '需審慎評估 (Caution)', color: '#dc3545' };
+  getOperationClass() {
+    if (this.prediction.operation.score >= 90) return { badge: 'bg-success', text: this.prediction.operation.report, color: '#198754' };
+    if (this.prediction.operation.score >= 70) return { badge: 'bg-warning text-dark', text: this.prediction.operation.report, color: '#ffc107' };
+    return { badge: 'bg-danger', text: this.prediction.operation.report, color: '#dc3545' };
   }
 
   renderCharts() {

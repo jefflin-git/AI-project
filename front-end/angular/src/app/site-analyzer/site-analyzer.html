@@ -58,12 +58,12 @@
                     <div class="col-md-5">
                         <div class="card h-100 text-center d-flex flex-column justify-content-center">
                             <h6 class="text-muted text-uppercase mb-2">營運推薦分數</h6>
-                            <div class="operation-score-display" [style.color]="getOperationScoreClass().color">{{
-                                prediction.operationScore | number:'1.1-1'
+                            <div class="operation-score-display" [style.color]="getOperationClass().color">{{
+                                prediction.operation.score | number:'1.1-1'
                                 }}</div>
                             <div class="mt-2">
-                                <span class="badge rounded-pill badge-score" [ngClass]="getOperationScoreClass().badge">
-                                    {{ getOperationScoreClass().text }}
+                                <span class="badge rounded-pill badge-score" [ngClass]="getOperationClass().badge">
+                                    {{ getOperationClass().text }}
                                 </span>
                             </div>
                         </div>
