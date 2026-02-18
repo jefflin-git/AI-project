@@ -1,5 +1,5 @@
 # 1. 使用輕量化的 Python 基礎映像檔
-FROM python:3.10-slim
+FROM python:3.13-slim
 
 # 2. 設定容器內的工作目錄
 WORKDIR /app
