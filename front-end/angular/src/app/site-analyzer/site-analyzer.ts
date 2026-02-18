@@ -142,7 +142,7 @@ export class SiteAnalyzerComponent implements OnInit {
   renderCharts() {
     const chartConfigs = [
       { id: 'popChart', type: 'bar' as const, data: [this.prediction.totalPopulation.neighborhood, this.prediction.totalPopulation.district], colors: ['#36A2EB', '#C8C8C8'], labels: [`${this.selectedNeighborhood}人口數`, `${this.selectedDistrict}人口數`] },
-      { id: 'incomeChart', type: 'bar' as const, data: [this.prediction.medianIncome.neighborhood, this.prediction.medianIncome.district], colors: ['#4BC0C0', '#C8C8C8'], labels: [`${this.selectedNeighborhood}收入中位數`, `${this.selectedDistrict}收入中位數`] }
+      { id: 'incomeChart', type: 'bar' as const, data: [this.prediction.medianIncome.neighborhood, this.prediction.medianIncome.district], colors: ['#4BC0C0', '#C8C8C8'], labels: [`${this.selectedNeighborhood}收入中位數 (千元)`, `${this.selectedDistrict}收入中位數 (千元)`] }
     ];
 
     chartConfigs.forEach(conf => {
