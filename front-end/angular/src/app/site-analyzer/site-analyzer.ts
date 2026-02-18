@@ -134,9 +134,13 @@ export class SiteAnalyzerComponent implements OnInit {
   }
 
   getOperationClass() {
-    if (this.prediction.operation.score >= 90) return { badge: 'bg-success', text: this.prediction.operation.report, color: '#198754' };
-    if (this.prediction.operation.score >= 70) return { badge: 'bg-warning text-dark', text: this.prediction.operation.report, color: '#ffc107' };
-    return { badge: 'bg-danger', text: this.prediction.operation.report, color: '#dc3545' };
+    if (this.selectedBrand === '便利商店') {
+      if (this.prediction.operation.score >= 50) return { badge: 'bg-success', text: this.prediction.operation.report, color: '#198754' };
+      return { badge: 'bg-danger', text: this.prediction.operation.report, color: '#dc3545' };
+    } else {
+      if (this.prediction.operation.score >= 70) return { badge: 'bg-success', text: this.prediction.operation.report, color: '#198754' };
+      return { badge: 'bg-danger', text: this.prediction.operation.report, color: '#dc3545' };
+    }
   }
 
   renderCharts() {
