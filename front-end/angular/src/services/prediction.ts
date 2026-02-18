@@ -18,7 +18,7 @@ export class PredictionService {
                 new MedianIncome(data.medianIncome.neighborhood, data.medianIncome.district),
                 data.competitorCount,
                 data.aiInsight,
-                new Radar(data.radar.internalCompetition, data.radar.externalCompetition, data.radar.hotSpotCount, data.radar.hotSpotDistance, data.radar.rentalCost)
+                new Radar(data.radar.labels, data.radar.values),
             );
         } catch (error) {
             console.error("無法執行預測:", error);

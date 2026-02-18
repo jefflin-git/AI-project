@@ -62,6 +62,7 @@ export class SiteAnalyzerComponent implements OnInit {
 
   async ngOnInit() {
     await this.SetDefault();
+    this.cdr.detectChanges();
   }
 
   async SetDefault() {
@@ -170,15 +171,15 @@ export class SiteAnalyzerComponent implements OnInit {
     this.charts['radarChart'] = new Chart(radarCtx, {
       type: 'radar',
       data: {
-        labels: ['內部競爭', '外部競爭', '熱鬧據點數', '熱點距離便利性', '租金成本'],
+        labels: this.prediction.radar.labels,
         datasets: [{
           label: '選址評分維度',
-          data: [this.prediction.radar.internalCompetition, this.prediction.radar.externalCompetition, this.prediction.radar.hotSpotCount, this.prediction.radar.hotSpotDistance, this.prediction.radar.rentalCost],
+          data: this.prediction.radar.values,
           backgroundColor: 'rgba(255, 99, 132, 0.2)',
           borderColor: 'rgb(255, 99, 132)'
         }]
       },
-      options: { scales: { r: { suggestedMin: 0, suggestedMax: 10 } } }
+      options: { scales: { r: { suggestedMin: 0, suggestedMax: 5 } } }
     });
   }
 }
