@@ -19,6 +19,7 @@ export class PredictionService {
                 data.competitorCount,
                 data.aiInsight,
                 new Radar(data.radar.labels, data.radar.values),
+                data.isSuccess
             );
         } catch (error) {
             console.error("無法執行預測:", error);
@@ -28,7 +29,8 @@ export class PredictionService {
                 new MedianIncome(0, 0),
                 0,
                 "",
-                new Radar(0, 0, 0, 0, 0)
+                new Radar([], []),
+                false
             );
         }
     }

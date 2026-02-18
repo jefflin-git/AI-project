@@ -10,6 +10,7 @@ export interface IPrediction {
     readonly competitorCount: number;
     readonly aiInsight: string;
     readonly radar: IRadar;
+    readonly isSuccess: boolean;
 }
 
 export class Prediction implements IPrediction {
@@ -19,6 +20,7 @@ export class Prediction implements IPrediction {
         public readonly medianIncome: IMedianIncome,
         public readonly competitorCount: number,
         public readonly aiInsight: string,
-        public readonly radar: IRadar
+        public readonly radar: IRadar,
+        public readonly isSuccess: boolean
     ) { }
 }

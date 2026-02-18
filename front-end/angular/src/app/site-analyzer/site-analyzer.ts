@@ -55,7 +55,8 @@ export class SiteAnalyzerComponent implements OnInit {
     new MedianIncome(0, 0),
     0,
     '',
-    new Radar(0, 0, 0, 0, 0)
+    new Radar([], []),
+    false
   );
 
   private charts: any = {};
@@ -100,11 +101,7 @@ export class SiteAnalyzerComponent implements OnInit {
   }
 
   async checkGeo() {
-    const result = await this.geoService.checkValidGeo(this.selectedCity, this.selectedDistrict, this.selectedNeighborhood);
-    if (result) {
-      return true;
-    }
-    return false;
+    return await this.geoService.checkValidGeo(this.selectedCity, this.selectedDistrict, this.selectedNeighborhood);
   }
 
   async runPrediction() {
@@ -131,6 +128,10 @@ export class SiteAnalyzerComponent implements OnInit {
 
   async generateResult() {
     this.prediction = await this.predictionService.runPrediction(this.selectedCity, this.selectedDistrict, this.selectedNeighborhood, this.selectedBrand);
+    if (!this.prediction.isSuccess) {
+      alert(`${this.selectedCity} ${this.selectedDistrict} ${this.selectedNeighborhood} 無開設 ${this.selectedBrand} 紀錄`);
+      return;
+    }
     this.renderCharts();
   }
 
