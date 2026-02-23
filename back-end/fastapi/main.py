@@ -1,11 +1,29 @@
+import os
 from fastapi import FastAPI
+from contextlib import asynccontextmanager
 from fastapi.middleware.cors import CORSMiddleware
 from services.geo import GeoService
 from services.brand import BrandService
 from services.prediction import PredictionService
+from services.gcs import GCSService
 from repositories.prediction import PredictionRepository
+from common import BUCKET_NAME, PREDICTION_MODEL_FILE_NAME, SHAP_DATABASE_FILE_NAME
 
-app = FastAPI()
+prediction_model_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "repositories", "models", f"{PREDICTION_MODEL_FILE_NAME}"))
+shap_database_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "repositories", "models", f"{SHAP_DATABASE_FILE_NAME}"))
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # 啟動時執行：下載並載入模型
+    if not os.path.exists(prediction_model_path):
+        GCSService.get_gcs_file(BUCKET_NAME, PREDICTION_MODEL_FILE_NAME, prediction_model_path)
+    if not os.path.exists(shap_database_path):
+        GCSService.get_gcs_file(BUCKET_NAME, SHAP_DATABASE_FILE_NAME, shap_database_path)
+    yield
+    # 關閉時執行（選填）
+    print("應用程式正在關閉...")
+
+app = FastAPI(lifespan=lifespan)
 uri_prefix = "/api"
 
 app.add_middleware(

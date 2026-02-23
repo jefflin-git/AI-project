@@ -1,3 +1,6 @@
+import os
+
+BUCKET_NAME = os.getenv("BUCKET_NAME")
 TRAIN_TABLE_FILE_NAME = "train_data_v1.1.csv"
 VALIDATION_TABLE_FILE_NAME = "test_data_v1.1.csv"
 PREDICTION_TABLE_FILE_NAME = "prediction_data.csv"
