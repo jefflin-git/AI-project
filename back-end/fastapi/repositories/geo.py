@@ -2,7 +2,7 @@ import pandas as pd
 import os
 from common import REPORT_TABLE_FILE_NAME
 
-report_table_file_path = os.path.abspath(os.path.join(os.path.dirname(__file__), ".", "datas", f"{REPORT_TABLE_FILE_NAME}.csv"))
+report_table_file_path = os.path.abspath(os.path.join(os.path.dirname(__file__), ".", "datas", f"{REPORT_TABLE_FILE_NAME}"))
 
 class GeoRepository:
     @staticmethod

@@ -9,12 +9,12 @@ import shap
 from common import TRAIN_TABLE_FILE_NAME, VALIDATION_TABLE_FILE_NAME, PREDICTION_TABLE_FILE_NAME, REPORT_TABLE_FILE_NAME, PREDICTION_MODEL_FILE_NAME, SHAP_DATABASE_FILE_NAME
 from value_objects.radar import Radar
 
-train_table_file_path = os.path.abspath(os.path.join(os.path.dirname(__file__), ".", "datas", f"{TRAIN_TABLE_FILE_NAME}.csv"))
-validation_table_file_path = os.path.abspath(os.path.join(os.path.dirname(__file__), ".", "datas", f"{VALIDATION_TABLE_FILE_NAME}.csv"))
-prediction_table_file_path = os.path.abspath(os.path.join(os.path.dirname(__file__), ".", "datas", f"{PREDICTION_TABLE_FILE_NAME}.csv"))
-report_table_file_path = os.path.abspath(os.path.join(os.path.dirname(__file__), ".", "datas", f"{REPORT_TABLE_FILE_NAME}.csv"))
-prediction_model_path = os.path.abspath(os.path.join(os.path.dirname(__file__), ".", "models", f"{PREDICTION_MODEL_FILE_NAME}.pkl"))
-shap_database_path = os.path.abspath(os.path.join(os.path.dirname(__file__), ".", "models", f"{SHAP_DATABASE_FILE_NAME}.pkl"))
+train_table_file_path = os.path.abspath(os.path.join(os.path.dirname(__file__), ".", "datas", f"{TRAIN_TABLE_FILE_NAME}"))
+validation_table_file_path = os.path.abspath(os.path.join(os.path.dirname(__file__), ".", "datas", f"{VALIDATION_TABLE_FILE_NAME}"))
+prediction_table_file_path = os.path.abspath(os.path.join(os.path.dirname(__file__), ".", "datas", f"{PREDICTION_TABLE_FILE_NAME}"))
+report_table_file_path = os.path.abspath(os.path.join(os.path.dirname(__file__), ".", "datas", f"{REPORT_TABLE_FILE_NAME}"))
+prediction_model_path = os.path.abspath(os.path.join(os.path.dirname(__file__), ".", "models", f"{PREDICTION_MODEL_FILE_NAME}"))
+shap_database_path = os.path.abspath(os.path.join(os.path.dirname(__file__), ".", "models", f"{SHAP_DATABASE_FILE_NAME}"))
 
 class IPredictionRepository(ABC):    
     @abstractmethod
