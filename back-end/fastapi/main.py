@@ -21,6 +21,10 @@ async def lifespan(app: FastAPI):
         GCSService.get_gcs_file(BUCKET_NAME, SHAP_DATABASE_FILE_NAME, shap_database_path)
     yield
     # 關閉時執行（選填）
+    if os.path.exists(prediction_model_path):
+        os.remove(prediction_model_path)
+    if os.path.exists(shap_database_path):
+        os.remove(shap_database_path)
     print("應用程式正在關閉...")
 
 app = FastAPI(lifespan=lifespan)
