@@ -1,16 +1,16 @@
 version: "3.8"
 services:
-  nginx:
-    build: ./proxy/nginx
-    container_name: nginx
-    restart: always
-    ports:
-      - "80:80"
-    environment:
-      - TZ=Asia/Taipei
-    depends_on:
-      - front-end
-      - back-end
+  # nginx:
+  #   build: ./proxy/nginx
+  #   container_name: nginx
+  #   restart: always
+  #   ports:
+  #     - "80:80"
+  #   environment:
+  #     - TZ=Asia/Taipei
+  #   depends_on:
+  #     - front-end
+  #     - back-end
 
 
   front-end:
@@ -19,10 +19,18 @@ services:
     restart: always
     environment:
       - TZ=Asia/Taipei
-  
+    ports:
+      - "4200:4200"
+    depends_on:
+      - back-end
+      
   back-end:
     build: ./back-end/fastapi
     container_name: back-end
     restart: always
     environment:
       - TZ=Asia/Taipei
+      - BUCKET_NAME=<YOUR_BUCKET_NAME>
+      - GOOGLE_APPLICATION_CREDENTIALS=/app/gcp_key/<YOUR_GCP_KEY>.json
+    ports:
+      - "8000:8000"

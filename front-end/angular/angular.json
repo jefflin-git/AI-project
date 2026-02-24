@@ -62,7 +62,8 @@
           "builder": "@angular/build:dev-server",
           "options": {
             "allowedHosts": [
-              "ai-project-frontend-438992102752.asia-east1.run.app"
+              "ai-project-frontend-438992102752.asia-east1.run.app",
+              "front-end"
             ]
           },
           "configurations": {
