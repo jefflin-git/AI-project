@@ -2,7 +2,9 @@ import shap
 import numpy as np
 import pandas as pd
 import xgboost as xgb
+from langchain_core.messages import SystemMessage, HumanMessage
 from repositories.prediction import IPredictionRepository
+from services.llm import LLMService
 from value_objects.prediction import IPrediction, Prediction
 from value_objects.population import TotalPopulation
 from value_objects.income import MedianIncome
@@ -10,8 +12,9 @@ from value_objects.radar import Radar
 from value_objects.operation import Operation
 
 class PredictionService:
-    def __init__(self, prediction_repository: IPredictionRepository):
+    def __init__(self, prediction_repository: IPredictionRepository, llm_service: LLMService):
         self.prediction_repository = prediction_repository
+        self.llm_service = llm_service
         self.feature_importance = None
         self.negative_importance_features = []
         self.feature_name_map = {
@@ -54,7 +57,7 @@ class PredictionService:
     
     def get_operation_score_from_model(self, city: str, district: str, neighborhood: str, brand_type: int) -> tuple[float, int]:
         fields = self.prediction_repository.get_prediction_features()
-        data = self.prediction_repository.get_data_by_location(city=city, district=district, neighborhood=neighborhood)
+        data = self.prediction_repository.get_prediction_table_data_by_location(city=city, district=district, neighborhood=neighborhood)
         first_data = data.head(1)
         id = first_data["id"].iloc[0]
         data = first_data[fields].copy()
@@ -69,6 +72,27 @@ class PredictionService:
         prob = score / 100
         threshold = 0.5 if brand_type == 1 else 0.7
         return "優質位點 (推薦展店)" if prob >= threshold else "高風險位點 (建議迴避)"
+
+    def get_ai_insight(self, id: int) -> str:
+        print("id", id)
+        # 方式一: LLM
+        row = self.prediction_repository.get_report_table_data_by_id(id)
+        print(row)
+        user_message = (
+        f"你是一位資深零售顧問。請根據以下「匿名位點」數據提供 60 字內中文評語。\n"
+        f"【嚴格禁令】：評語中絕對禁止出現「品牌名稱」以及「登記現況」(如：營運中、廢止、撤點等狀態)。\n"
+        f"位置：{row['行政區']}{row['里別']}\n"
+        f"推薦展店指數：{row['營運推薦分數']}\n"
+        f"最終決策建議：{row['專題最終決策']}\n"
+        f"環境指標1：{row['top1_feature']} ({row['top1_dir']})\n"
+        f"環境指標2：{row['top2_feature']} ({row['top2_dir']})\n"
+        f"請以「該位點...」開頭，僅針對商圈體質、競爭飽和度與地理數據進行客觀分析。"
+    )
+        ai_insight = self.llm_service.invoke(user_message=user_message)
+
+        # 方式二: 查表
+        # ai_insight = self.prediction_repository.get_ai_insight_from_table(id)
+        return ai_insight
 
     def get_radar(self, id: int = None, distinct: str = None, neighborhood: str = None, is_cvs: int = None, target_status: str = None, selected_idx: list[int] = None) -> Radar:
         # --- 1. 載入資料庫 ---
@@ -145,7 +169,7 @@ class PredictionService:
                     district=self.prediction_repository.get_district_median_income(city, district),
                 ),
                 competitor_count=self.prediction_repository.get_competitor_count(city, district, neighborhood, brand_type),
-                ai_insight=self.prediction_repository.get_ai_insight_from_table(id),
+                ai_insight=self.get_ai_insight(id),
                 radar=self.get_radar(id=id, selected_idx=[1,2,3,4,6,9]),
                 is_success=True
             )

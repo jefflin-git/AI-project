@@ -31,7 +31,11 @@ class IPredictionRepository(ABC):
         pass
     
     @abstractmethod
-    def get_data_by_location(self, city: str, district: str, neighborhood: str) -> pd.DataFrame:
+    def get_prediction_table_data_by_location(self, city: str, district: str, neighborhood: str) -> pd.DataFrame:
+        pass
+
+    @abstractmethod
+    def get_report_table_data_by_id(self, id: int) -> pd.DataFrame:
         pass
 
     @abstractmethod
@@ -119,7 +123,7 @@ class PredictionRepository(IPredictionRepository):
     def get_shap_database(self) -> pd.DataFrame:
         return self.shap_database
 
-    def get_data_by_location(self, city: str = None, district: str = None, neighborhood: str = None) -> pd.DataFrame:
+    def get_prediction_table_data_by_location(self, city: str = None, district: str = None, neighborhood: str = None) -> pd.DataFrame:
         # 封裝底層查詢邏輯
         if city != None and district != None and neighborhood != None:
             query = (self.prediction_table["縣市"] == city) & \
@@ -131,6 +135,11 @@ class PredictionRepository(IPredictionRepository):
         elif city != None:
             query = (self.prediction_table["縣市"] == city)
         data = self.prediction_table[query]
+        if data.empty: raise ValueError("Location not found")
+        return data
+
+    def get_report_table_data_by_id(self, id: int) -> pd.DataFrame:
+        data = self.report_table[self.report_table['id'] == id]
         if data.empty: raise ValueError("Location not found")
         return data
     

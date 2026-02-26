@@ -7,6 +7,8 @@ from services.brand import BrandService
 from services.prediction import PredictionService
 from services.gcs import GCSService
 from repositories.prediction import PredictionRepository
+from repositories.llm import GeminiRepository
+from services.llm import LLMService
 from common import BUCKET_NAME, PREDICTION_MODEL_FILE_NAME, SHAP_DATABASE_FILE_NAME
 
 prediction_model_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "repositories", "models", f"{PREDICTION_MODEL_FILE_NAME}"))
@@ -61,7 +63,7 @@ async def check_valid_geo(city: str, district: str, neighborhood: str):
 @app.get(uri_prefix + "/run-prediction/{city}/{district}/{neighborhood}/{brand}")
 async def run_prediction(city: str, district: str, neighborhood: str, brand: str):
     brand_type = 1 if brand == "便利商店" else 0
-    prediction = PredictionService(PredictionRepository()).run_prediction(city, district, neighborhood, brand_type)
+    prediction = PredictionService(PredictionRepository(), LLMService(GeminiRepository())).run_prediction(city, district, neighborhood, brand_type)
     return {
         "operation": {
             "score": prediction.operation.score,
