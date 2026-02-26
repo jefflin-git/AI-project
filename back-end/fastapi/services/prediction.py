@@ -11,7 +11,7 @@ class PredictionService:
     
     def run_prediction(self, city: str, district: str, neighborhood: str, brand_type: int) -> IPrediction:
         try:
-            score = self.prediction_repository.get_operation_score_from_model(city, district, neighborhood, brand_type)
+            score, id = self.prediction_repository.get_operation_score_from_model(city, district, neighborhood, brand_type)
             report = self.prediction_repository.get_operation_report(score, brand_type)
         
             return Prediction(
@@ -28,8 +28,8 @@ class PredictionService:
                     district=self.prediction_repository.get_district_median_income(city, district),
                 ),
                 competitor_count=self.prediction_repository.get_competitor_count(city, district, neighborhood, brand_type),
-                ai_insight=self.prediction_repository.get_ai_insight_from_table(city, district, neighborhood, brand_type, report),
-                radar=self.prediction_repository.get_radar(district, neighborhood, brand_type, selected_idx=[1,2,3,4,6,9]),
+                ai_insight=self.prediction_repository.get_ai_insight_from_table(id),
+                radar=self.prediction_repository.get_radar(id=id, selected_idx=[1,2,3,4,6,9]),
                 is_success=True
             )
         except Exception as e:

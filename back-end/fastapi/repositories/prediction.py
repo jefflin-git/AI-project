@@ -22,7 +22,7 @@ class IPredictionRepository(ABC):
         pass
     
     @abstractmethod
-    def get_operation_score_from_model(self, city: str, district: str, neighborhood: str, brand_type: int) -> float:
+    def get_operation_score_from_model(self, city: str, district: str, neighborhood: str, brand_type: int) -> tuple[float, int]:
         pass
     
     @abstractmethod
@@ -50,11 +50,11 @@ class IPredictionRepository(ABC):
         pass
     
     @abstractmethod
-    def get_ai_insight_from_table(self, city: str, district: str, neighborhood: str, brand_type: int, report: str) -> list[str]:
+    def get_ai_insight_from_table(self, id: int) -> str:
         pass
     
     @abstractmethod
-    def get_radar(self, district: str, neighborhood: str, brand_type: int, target_status: str, selected_idx: list[int]) -> Radar:
+    def get_radar(self, id: int = None, distinct: str = None, neighborhood: str = None, is_cvs: int = 1, target_status: str = None, selected_idx: list[int] = None) -> Radar:
         pass
 
 class PredictionRepository(IPredictionRepository):
@@ -142,16 +142,18 @@ class PredictionRepository(IPredictionRepository):
         avg_score = data["營運推薦分數"].mean()
         return round(avg_score, 2)
 
-    def get_operation_score_from_model(self, city: str, district: str, neighborhood: str, brand_type: int) -> float:
+    def get_operation_score_from_model(self, city: str, district: str, neighborhood: str, brand_type: int) -> tuple[float, int]:
         fields = self.prediction_features
         query = (self.prediction_table["縣市"] == city) & (self.prediction_table["行政區"] == district) & (self.prediction_table["里別"] == neighborhood)
-        data = self.prediction_table[query][fields].copy()
+        first_data = self.prediction_table[query].head(1)
+        id = first_data["id"].iloc[0]
+        data = first_data[fields].copy()
         data['是否便利商店'] = brand_type
         dmatrix = xgb.DMatrix(data, enable_categorical=True)
         operation_rate = self.prediction_model.predict(dmatrix)
         operation_score = operation_rate * 100
-        operation_score_mean = operation_score.mean()
-        return float(operation_score_mean)
+        first_operation_score = operation_score[0]      
+        return float(first_operation_score), int(id)
 
     def get_operation_report(self, score: float, brand_type: int) -> str:
         prob = score / 100
@@ -167,7 +169,8 @@ class PredictionRepository(IPredictionRepository):
 
     def get_district_total_population(self, city: str, district: str) -> int:
         fields = ["縣市", "行政區", "里別", "里人口數"]
-        data = self.prediction_table[(self.prediction_table["縣市"] == city) & (self.prediction_table["行政區"] == district)][fields].copy()
+        query = (self.prediction_table["縣市"] == city) & (self.prediction_table["行政區"] == district)
+        data = self.prediction_table[query][fields].copy()
         district_total_population = int(data.drop_duplicates(subset=["里別"])["里人口數"].sum())
         return district_total_population
 
@@ -192,13 +195,13 @@ class PredictionRepository(IPredictionRepository):
         competitor_count = len(data)
         return competitor_count
 
-    def get_ai_insight_from_table(self, city: str, district: str, neighborhood: str, brand_type: int, report: str) -> str:
+    def get_ai_insight_from_table(self, id: int) -> str:
         fields = ["ai_review"]
-        query = (self.report_table["縣市"] == city) & (self.report_table["行政區"] == district) & (self.report_table["里別"] == neighborhood) & (self.report_table["是否便利商店"] == brand_type) & (self.report_table["專題最終決策"] == report)
+        query = (self.report_table["id"] == id)
         data = self.report_table[query][fields]
         return data["ai_review"].iloc[0]
 
-    def get_radar(self, distinct, neighborhood, is_cvs=1, target_status=None, selected_idx=None) -> Radar:
+    def get_radar(self, id: int = None, distinct: str = None, neighborhood: str = None, is_cvs: int = 1, target_status: str = None, selected_idx: list[int] = None) -> Radar:
         # --- 1. 載入資料庫 ---
         db = self.shap_database['lookup_table']
         # 關鍵修正：只保留數值型特徵，移除類別型欄位
@@ -206,7 +209,10 @@ class PredictionRepository(IPredictionRepository):
         group_key = 'CVS' if is_cvs == 1 else 'Super'
         thresholds_dict = self.shap_database[group_key]['thresholds']
         # --- 2. 資料篩選與定位 ---
-        mask = (db['行政區'] == distinct) & (db['里別'].str.contains(neighborhood)) & (db['是否便利商店'] == is_cvs)
+        if id != None:
+            mask = (db['id'] == id)
+        else:
+            mask = (db['行政區'] == distinct) & (db['里別'].str.contains(neighborhood)) & (db['是否便利商店'] == is_cvs)
         target_data = db[mask]
         if target_data.empty: return print(f"❌ 找不到資料：{distinct}{neighborhood}")
         if target_status:
