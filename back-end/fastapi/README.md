@@ -20,6 +20,7 @@ pip install -r requirements.txt
 - 在back-end/fastapi/repositories/gcp_key/下貼上從GCP下載的金鑰json檔案
 - 在back-end/fastapi/common.py中修改BUCKET_NAME為你的bucket name
 - 在back-end/fastapi/common.py中修改GOOGLE_APPLICATION_CREDENTIALS為你的金鑰json檔案路徑
+- 在back-end/fastapi/common.py中修改GEMINI_API_KEY為你的Gemini API Key
 ## 運行server
 ```
 uvicorn main:app --reload
