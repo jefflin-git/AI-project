@@ -201,7 +201,7 @@ class PredictionRepository(IPredictionRepository):
         data = self.report_table[query][fields]
         return data["ai_review"].iloc[0]
 
-    def get_radar(self, id: int = None, distinct: str = None, neighborhood: str = None, is_cvs: int = 1, target_status: str = None, selected_idx: list[int] = None) -> Radar:
+    def get_radar(self, id: int = None, distinct: str = None, neighborhood: str = None, is_cvs: int = None, target_status: str = None, selected_idx: list[int] = None) -> Radar:
         # --- 1. 載入資料庫 ---
         db = self.shap_database['lookup_table']
         # 關鍵修正：只保留數值型特徵，移除類別型欄位
