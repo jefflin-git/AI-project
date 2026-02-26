@@ -83,7 +83,8 @@ class PredictionRepository(IPredictionRepository):
         }
         self._run_data_preprocess()
         self._load_model()
-        self._calculate_feature_importance()
+        self._set_indices()
+        self._calculate_feature_importance()        
 
     def _run_data_preprocess(self) -> pd.DataFrame:
         self.train_table = self._data_preprocess(pd.read_csv(train_table_file_path))
@@ -134,6 +135,10 @@ class PredictionRepository(IPredictionRepository):
         df_ml['租金_log'] = np.log1p(df_ml['租金'])
         df_ml['最近的熱鬧據點類型'] = df_ml['最近的熱鬧據點類型'].astype('category')
         return df_ml
+
+    def _set_indices(self):
+        # 建立索引以加速查詢
+        self.prediction_table.set_index(['縣市', '行政區', '里別'], inplace=False)
 
     def get_operation_score_from_table(self, city: str, district: str, neighborhood: str, brand_type: int) -> float:
         fields = ["營運推薦分數"]
