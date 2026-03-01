@@ -138,10 +138,10 @@ class PredictionRepository(IPredictionRepository):
         if data.empty: raise ValueError("Location not found")
         return data
 
-    def get_report_table_data_by_id(self, id: int) -> pd.DataFrame:
+    def get_report_table_data_by_id(self, id: int) -> pd.Series:
         data = self.report_table[self.report_table['id'] == id]
         if data.empty: raise ValueError("Location not found")
-        return data
+        return data.iloc[0]
     
     def get_operation_score_from_table(self, city: str, district: str, neighborhood: str, brand_type: int) -> float:
         fields = ["營運推薦分數"]

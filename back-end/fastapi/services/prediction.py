@@ -73,21 +73,36 @@ class PredictionService:
         threshold = 0.5 if brand_type == 1 else 0.7
         return "優質位點 (推薦展店)" if prob >= threshold else "高風險位點 (建議迴避)"
 
-    def get_ai_insight(self, id: int) -> str:
+    def get_ai_insight(self, id: int, score: float, report: str) -> str:
         print("id", id)
         # 方式一: LLM
         row = self.prediction_repository.get_report_table_data_by_id(id)
         print(row)
+        brand_type = "便利商店" if row['是否便利商店'] == 1 else "超市及藥妝"
         user_message = (
-        f"你是一位資深零售顧問。請根據以下「匿名位點」數據提供 60 字內中文評語。\n"
-        f"【嚴格禁令】：評語中絕對禁止出現「品牌名稱」以及「登記現況」(如：營運中、廢止、撤點等狀態)。\n"
-        f"位置：{row['行政區']}{row['里別']}\n"
-        f"推薦展店指數：{row['營運推薦分數']}\n"
-        f"最終決策建議：{row['專題最終決策']}\n"
-        f"環境指標1：{row['top1_feature']} ({row['top1_dir']})\n"
-        f"環境指標2：{row['top2_feature']} ({row['top2_dir']})\n"
-        f"請以「該位點...」開頭，僅針對商圈體質、競爭飽和度與地理數據進行客觀分析。"
-    )
+        f"你是一位精通雙北零售市場的資深顧問。請根據以下數據提供 60 字內中文評語。\n"
+        f"【位點數據】：\n"
+        f"- 縣市：{row['縣市']}\n"
+        f"- 位置：{row['行政區']}{row['里別']}\n"
+        f"- 區域人口：{row['里人口數']} 人 / 收入中位數：{row['里人均收入中位數']} 千元\n"
+        f"- 業態：{brand_type}\n"
+        f"- 預測分數：{score:.1f} (決策：{report})\n"
+        f"- 影響指標 1：{row['top1_feature']} ({row['top1_dir']})\n"
+        f"- 影響指標 2：{row['top2_feature']} ({row['top2_dir']})\n\n"
+        f"【分析邏輯與顧問語氣準則】：\n"
+        f"0. 絕對規模判定：若里人口數 < 2000，無論收入多高，優先判定為『商圈規模小，基礎客源支撐力不足』，此時不適用強勢商圈保護邏輯。"
+        f"1. 體質防禦：新北市(人口>4800/收入>510k)或台北市(人口>5500/收入>670k)符合任一則判定為強勢商圈，禁止說體質差。\n"
+        f"2. 專業轉化：將'核心據點距離優異'轉化為'位處人流聚集核心'；'租金壓力優異'轉化為'具備展店成本優勢'；'市占/飽和度弱'轉化為'品牌進入門檻顯著'。\n"
+        f"3. 歸因策略：若分數低但體質強，應解讀為'市場競爭飽和'。若兩者皆低，則解讀為'基礎客源門檻未達'。\n"
+        f"4. 市場規模補償：若人口 > 10,000 且分數低(<40)，絕不可否定商圈，必須解讀為'市場雖極具誘力，但品牌面臨飽和競爭或進入門檻限制'。\n"
+        f"5. 藍海判定：若分數高(>60)且市占率弱，應解讀為'具備高度開發潛力之藍海商圈'。\n"
+        f"\n【顧問語氣強度控制規則】：\n"
+        f"6. 業態門檻感知：\n"
+        f"   - 若為「便利商店」(門檻 50)：50-60 分應定位為『險勝』，語氣保守；60-80 分為『優質』，語氣正向；80 分以上為『極佳』。\n"
+        f"   - 若為「超市及藥妝」(門檻 70)：70-75 分應定位為『險勝』，語氣保守且需強調成本控制；75-85 分為『優質』；85 分以上為『極佳』。\n"
+        f"7. 針對「險勝」區間（如超市 71.9 分）：禁止使用『極力推薦』、『高潛力』，改用『具備基礎條件』、『建議審慎評估成本』。\n"
+        f"8. 以'該位點...'開頭，禁提品牌與登記狀態，字數嚴控 60 字內。"
+        )
         ai_insight = self.llm_service.invoke(user_message=user_message)
 
         # 方式二: 查表
@@ -169,7 +184,7 @@ class PredictionService:
                     district=self.prediction_repository.get_district_median_income(city, district),
                 ),
                 competitor_count=self.prediction_repository.get_competitor_count(city, district, neighborhood, brand_type),
-                ai_insight=self.get_ai_insight(id),
+                ai_insight=self.get_ai_insight(id, score, report),
                 radar=self.get_radar(id=id, selected_idx=[1,2,3,4,6,9]),
                 is_success=True
             )
