@@ -58,14 +58,17 @@ class PredictionService:
     def get_operation_score_from_model(self, city: str, district: str, neighborhood: str, brand_type: int) -> tuple[float, int]:
         fields = self.prediction_repository.get_prediction_features()
         data = self.prediction_repository.get_prediction_table_data_by_location(city=city, district=district, neighborhood=neighborhood)
-        first_data = data.head(1)
+        filtered_data = data[data['是否便利商店'] == brand_type]
+        if filtered_data.empty:
+            brand_name = "便利商店" if brand_type == 1 else "超市及藥妝"
+            raise ValueError(f"❌ {city}{district}{neighborhood} 查無【{brand_name}】相關歷史數據")
+        first_data = filtered_data.head(1)
         id = first_data["id"].iloc[0]
         data = first_data[fields].copy()
-        data['是否便利商店'] = brand_type
         dmatrix = xgb.DMatrix(data, enable_categorical=True)
         operation_rate = self.prediction_repository.get_prediction_model().predict(dmatrix)
         operation_score = operation_rate * 100
-        first_operation_score = operation_score[0]      
+        first_operation_score = operation_score[0]
         return float(first_operation_score), int(id)
 
     def get_operation_report(self, score: float, brand_type: int) -> str:
