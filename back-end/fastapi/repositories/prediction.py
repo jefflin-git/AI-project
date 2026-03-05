@@ -1,19 +1,22 @@
 import pandas as pd
 import os
 import pickle
+import json
 from abc import ABC, abstractmethod
 import xgboost as xgb
+import onnxruntime as rt
 import numpy as np
-from common import TRAIN_TABLE_FILE_NAME, VALIDATION_TABLE_FILE_NAME, PREDICTION_TABLE_FILE_NAME, REPORT_TABLE_FILE_NAME, PREDICTION_MODEL_FILE_NAME, SHAP_DATABASE_FILE_NAME
+from common import TRAIN_TABLE_FILE_NAME, VALIDATION_TABLE_FILE_NAME, PREDICTION_TABLE_FILE_NAME, REPORT_TABLE_FILE_NAME, PREDICTION_MODEL_PKL_FILE_NAME, PREDICTION_MODEL_ONNX_FILE_NAME, SHAP_DATABASE_FILE_NAME
 
 train_table_file_path = os.path.abspath(os.path.join(os.path.dirname(__file__), ".", "datas", f"{TRAIN_TABLE_FILE_NAME}"))
 validation_table_file_path = os.path.abspath(os.path.join(os.path.dirname(__file__), ".", "datas", f"{VALIDATION_TABLE_FILE_NAME}"))
 prediction_table_file_path = os.path.abspath(os.path.join(os.path.dirname(__file__), ".", "datas", f"{PREDICTION_TABLE_FILE_NAME}"))
 report_table_file_path = os.path.abspath(os.path.join(os.path.dirname(__file__), ".", "datas", f"{REPORT_TABLE_FILE_NAME}"))
-prediction_model_path = os.path.abspath(os.path.join(os.path.dirname(__file__), ".", "models", f"{PREDICTION_MODEL_FILE_NAME}"))
+prediction_model_pkl_path = os.path.abspath(os.path.join(os.path.dirname(__file__), ".", "models", f"{PREDICTION_MODEL_PKL_FILE_NAME}"))
+prediction_model_onnx_path = os.path.abspath(os.path.join(os.path.dirname(__file__), ".", "models", f"{PREDICTION_MODEL_ONNX_FILE_NAME}"))
 shap_database_path = os.path.abspath(os.path.join(os.path.dirname(__file__), ".", "models", f"{SHAP_DATABASE_FILE_NAME}"))
 
-class IPredictionRepository(ABC):    
+class IPredictionRepository(ABC):
     @abstractmethod
     def get_prediction_features(self) -> list:
         pass
@@ -24,6 +27,10 @@ class IPredictionRepository(ABC):
     
     @abstractmethod
     def get_prediction_model(self) -> xgb.XGBClassifier:
+        pass
+
+    @abstractmethod
+    def get_predition_mapping(self) -> dict:
         pass
 
     @abstractmethod
@@ -73,6 +80,7 @@ class PredictionRepository(IPredictionRepository):
         self.prediction_table = None
         self.report_table = None
         self.prediction_model = None
+        self.predition_mapping = None
         self.shap_database = None
         self.prediction_features = []
         self._run_data_preprocess()
@@ -93,13 +101,21 @@ class PredictionRepository(IPredictionRepository):
             self.prediction_table = concat_data
 
     def _load_model(self):
-        with open(prediction_model_path, "rb") as f:
-            pkl_data = pickle.load(f)
-            self.prediction_model = pkl_data['model']
-            self.prediction_features = pkl_data['features']
-        with open(shap_database_path, "rb") as f:
-            pkl_data = pickle.load(f)
-            self.shap_database = pkl_data
+        # pkl
+        # with open(prediction_model_pkl_path, "rb") as f:
+        #     pkl_data = pickle.load(f)
+        #     self.prediction_model = pkl_data['model']
+        #     self.prediction_features = pkl_data['features']
+        # pkl
+        # with open(shap_database_path, "rb") as f:
+        #     pkl_data = pickle.load(f)
+        #     self.shap_database = pkl_data
+        # onxx
+        self.prediction_model = rt.InferenceSession(prediction_model_onnx_path)
+        model_meta = self.prediction_model.get_modelmeta().custom_metadata_map
+        config = json.loads(model_meta['model_config'])
+        self.predition_mapping = config['category_mapping']
+        self.prediction_features = config['feature_order']
 
     def _data_preprocess(self, df_ml: pd.DataFrame) -> pd.DataFrame:
         df_ml['日夜人流差'] = df_ml['行政區平日日間活動人數'] - df_ml['行政區平日夜間停留人數']
@@ -113,6 +129,9 @@ class PredictionRepository(IPredictionRepository):
 
     def get_prediction_features(self) -> list:
         return self.prediction_features
+    
+    def get_predition_mapping(self) -> dict:
+        return self.predition_mapping
     
     def get_prediction_table(self) -> pd.DataFrame:
         return self.prediction_table

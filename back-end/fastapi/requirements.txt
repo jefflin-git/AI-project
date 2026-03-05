@@ -6,3 +6,4 @@ shap
 google-cloud-storage
 langchain
 langchain-google-genai
+onnxruntime

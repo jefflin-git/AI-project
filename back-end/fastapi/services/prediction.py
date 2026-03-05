@@ -30,7 +30,7 @@ class PredictionService:
             '發票銷售額指標': '發票銷售指標',
             '行政區平日日間活動人數': '日間活動人流'
         }
-        self._calculate_feature_importance()
+        # self._calculate_feature_importance()
     
     def _calculate_feature_importance(self):
         # 1. 準備資料與計算 SHAP
@@ -55,6 +55,28 @@ class PredictionService:
         self.feature_importance = pd.DataFrame(analysis_data).sort_values(by='Importance', ascending=False)
         self.negative_importance_features = self.feature_importance[self.feature_importance['Direction'] == '(-)']['Feature'].tolist()
     
+    def run_pkl_model(self, data: pd.DataFrame) -> float:
+        dmatrix = xgb.DMatrix(data, enable_categorical=True)
+        operation_rate = self.prediction_repository.get_prediction_model().predict(dmatrix)
+        return operation_rate[0]
+    
+    def run_onnx_model(self, data: pd.DataFrame) -> float:
+        data_dict = data.to_dict(orient='records')[0]
+        input_values = []
+        for col in self.prediction_repository.get_prediction_features():
+            val = data_dict.get(col)
+            # 1. 處理類別型特徵 (最近的熱鬧據點類型)
+            if col == '最近的熱鬧據點類型':
+                cat_mapping = self.prediction_repository.get_predition_mapping()
+                val = cat_mapping.get(val, -1)
+            # 確保轉為 float，避免 None 導致崩潰
+            input_values.append(float(val) if val is not None else 0.0)
+        input_tensor = np.array([input_values], dtype=np.float32)
+        input_name = self.prediction_repository.get_prediction_model().get_inputs()[0].name
+        outputs = self.prediction_repository.get_prediction_model().run(None, {input_name: input_tensor})
+        operation_rate = outputs[1][0][1]
+        return round(float(operation_rate), 4)
+    
     def get_operation_score_from_model(self, city: str, district: str, neighborhood: str, brand_type: int) -> tuple[float, int]:
         fields = self.prediction_repository.get_prediction_features()
         data = self.prediction_repository.get_prediction_table_data_by_location(city=city, district=district, neighborhood=neighborhood)
@@ -65,11 +87,9 @@ class PredictionService:
         first_data = filtered_data.head(1)
         id = first_data["id"].iloc[0]
         data = first_data[fields].copy()
-        dmatrix = xgb.DMatrix(data, enable_categorical=True)
-        operation_rate = self.prediction_repository.get_prediction_model().predict(dmatrix)
+        operation_rate = self.run_onnx_model(data)
         operation_score = operation_rate * 100
-        first_operation_score = operation_score[0]
-        return float(first_operation_score), int(id)
+        return float(operation_score), int(id)
 
     def get_operation_report(self, score: float, brand_type: int) -> str:
         prob = score / 100
@@ -188,7 +208,11 @@ class PredictionService:
                 ),
                 competitor_count=self.prediction_repository.get_competitor_count(city, district, neighborhood, brand_type),
                 ai_insight=self.get_ai_insight(id, score, report),
-                radar=self.get_radar(id=id, selected_idx=[1,2,3,4,6,9]),
+                # radar=self.get_radar(id=id, selected_idx=[1,2,3,4,6,9]),
+                radar=Radar(
+                    labels=[],
+                    values=[],
+                ),
                 is_success=True
             )
         except Exception as e:
