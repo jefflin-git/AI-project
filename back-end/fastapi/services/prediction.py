@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 import xgboost as xgb
 from langchain_core.messages import SystemMessage, HumanMessage
+from log import Logger
 from repositories.prediction import IPredictionRepository
 from services.llm import LLMService
 from value_objects.prediction import IPrediction, Prediction
@@ -11,6 +12,7 @@ from value_objects.income import MedianIncome
 from value_objects.radar import Radar
 from value_objects.operation import Operation
 
+logger = Logger(__name__)
 class PredictionService:
     def __init__(self, prediction_repository: IPredictionRepository, llm_service: LLMService):
         self.prediction_repository = prediction_repository
@@ -97,10 +99,10 @@ class PredictionService:
         return "優質位點 (推薦展店)" if prob >= threshold else "高風險位點 (建議迴避)"
 
     def get_ai_insight(self, id: int, score: float, report: str) -> str:
-        print("id", id)
+        logger.info(f"id: {id}")
         # 方式一: LLM
         row = self.prediction_repository.get_report_table_data_by_id(id)
-        print(row)
+        logger.info(row)
         brand_type = "便利商店" if row['是否便利商店'] == 1 else "超市及藥妝"
         user_message = (
         f"你是一位精通雙北零售市場的資深顧問。請根據以下數據提供 60 字內中文評語。\n"
@@ -146,11 +148,11 @@ class PredictionService:
         else:
             mask = (db['行政區'] == distinct) & (db['里別'].str.contains(neighborhood)) & (db['是否便利商店'] == is_cvs)
         target_data = db[mask]
-        if target_data.empty: return print(f"❌ 找不到資料：{distinct}{neighborhood}")
+        if target_data.empty: return logger.warning(f"❌ 找不到資料：{distinct}{neighborhood}")
         if target_status:
             specific_data = target_data[target_data['登記現況'] == target_status]
             if specific_data.empty:
-                return print(f"⚠️ 在 {distinct}{neighborhood} 找不到狀態為【{target_status}】的店點。")
+                return logger.warning(f"⚠️ 在 {distinct}{neighborhood} 找不到狀態為【{target_status}】的店點。")
             example_row = specific_data.iloc[0]
         else:
             example_row = target_data.iloc[0]
@@ -209,6 +211,7 @@ class PredictionService:
                 competitor_count=self.prediction_repository.get_competitor_count(city, district, neighborhood, brand_type),
                 ai_insight=self.get_ai_insight(id, score, report),
                 # radar=self.get_radar(id=id, selected_idx=[1,2,3,4,6,9]),
+            logger.error(e)
                 radar=Radar(
                     labels=[],
                     values=[],
@@ -216,7 +219,7 @@ class PredictionService:
                 is_success=True
             )
         except Exception as e:
-            print(e)
+            logger.error(e)
             return Prediction(
                 operation=Operation(
                     score=0,

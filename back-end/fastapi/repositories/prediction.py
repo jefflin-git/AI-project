@@ -7,6 +7,9 @@ import xgboost as xgb
 import onnxruntime as rt
 import numpy as np
 from common import TRAIN_TABLE_FILE_NAME, VALIDATION_TABLE_FILE_NAME, PREDICTION_TABLE_FILE_NAME, REPORT_TABLE_FILE_NAME, PREDICTION_MODEL_PKL_FILE_NAME, PREDICTION_MODEL_ONNX_FILE_NAME, SHAP_DATABASE_FILE_NAME
+from log import Logger
+
+logger = Logger(__name__)
 
 train_table_file_path = os.path.abspath(os.path.join(os.path.dirname(__file__), ".", "datas", f"{TRAIN_TABLE_FILE_NAME}"))
 validation_table_file_path = os.path.abspath(os.path.join(os.path.dirname(__file__), ".", "datas", f"{VALIDATION_TABLE_FILE_NAME}"))
@@ -97,7 +100,7 @@ class PredictionRepository(IPredictionRepository):
         except FileNotFoundError:
             concat_data = pd.concat([self.train_table, self.validation_table], ignore_index=True)
             concat_data.to_csv(prediction_table_file_path, index=False)
-            print(f"Created prediction table file at {prediction_table_file_path}")
+            logger.info(f"Created prediction table file at {prediction_table_file_path}")
             self.prediction_table = concat_data
 
     def _load_model(self):
