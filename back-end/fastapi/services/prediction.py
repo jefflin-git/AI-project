@@ -236,32 +236,3 @@ class PredictionService:
                 ),
                 is_success=False
             )
-                radar=Radar(
-                    labels=[],
-                    values=[],
-                ),
-                is_success=True
-            )
-        except Exception as e:
-            logger.error(e)
-            return Prediction(
-                operation=Operation(
-                    score=0,
-                    report=""
-                ),
-                total_population=TotalPopulation(
-                    neighborhood=0,
-                    district=0,
-                ),
-                median_income=MedianIncome(
-                    neighborhood=0,
-                    district=0,
-                ),
-                competitor_count=0,
-                ai_insight=[],
-                radar=Radar(
-                    labels=[],
-                    values=[],
-                ),
-                is_success=False
-            )
