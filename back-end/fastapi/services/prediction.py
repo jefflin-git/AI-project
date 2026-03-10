@@ -79,7 +79,7 @@ class PredictionService:
         operation_rate = outputs[1][0][1]
         return round(float(operation_rate), 4)
     
-    def get_operation_score_from_model(self, city: str, district: str, neighborhood: str, brand_type: int) -> tuple[float, int]:
+    def get_prediction_data(self, city: str, district: str, neighborhood: str, brand_type: int) -> tuple[pd.DataFrame, int]:
         fields = self.prediction_repository.get_prediction_features()
         data = self.prediction_repository.get_prediction_table_data_by_location(city=city, district=district, neighborhood=neighborhood)
         filtered_data = data[data['是否便利商店'] == brand_type]
@@ -89,9 +89,13 @@ class PredictionService:
         first_data = filtered_data.head(1)
         id = first_data["id"].iloc[0]
         data = first_data[fields].copy()
-        operation_rate = self.run_onnx_model(data)
+        return data, int(id)
+
+    def get_operation_score_from_model(self, city: str, district: str, neighborhood: str, brand_type: int) -> tuple[float, int]:
+        data, id = self.get_prediction_data(city, district, neighborhood, brand_type)
+        operation_rate = self.run_pkl_model(data)
         operation_score = operation_rate * 100
-        return float(operation_score), int(id)
+        return float(operation_score), id
 
     def get_operation_report(self, score: float, brand_type: int) -> str:
         prob = score / 100
