@@ -102,20 +102,20 @@ class PredictionRepository(IPredictionRepository):
 
     def _load_model(self):
         # pkl
-        # with open(prediction_model_pkl_path, "rb") as f:
-        #     pkl_data = pickle.load(f)
-        #     self.prediction_model = pkl_data['model']
-        #     self.prediction_features = pkl_data['features']
+        with open(prediction_model_pkl_path, "rb") as f:
+            pkl_data = pickle.load(f)
+            self.prediction_model = pkl_data['model']
+            self.prediction_features = pkl_data['features']
         # pkl
-        # with open(shap_database_path, "rb") as f:
-        #     pkl_data = pickle.load(f)
-        #     self.shap_database = pkl_data
+        with open(shap_database_path, "rb") as f:
+            pkl_data = pickle.load(f)
+            self.shap_database = pkl_data
         # onxx
-        self.prediction_model = rt.InferenceSession(prediction_model_onnx_path)
-        model_meta = self.prediction_model.get_modelmeta().custom_metadata_map
-        config = json.loads(model_meta['model_config'])
-        self.predition_mapping = config['category_mapping']
-        self.prediction_features = config['feature_order']
+        # self.prediction_model = rt.InferenceSession(prediction_model_onnx_path)
+        # model_meta = self.prediction_model.get_modelmeta().custom_metadata_map
+        # config = json.loads(model_meta['model_config'])
+        # self.predition_mapping = config['category_mapping']
+        # self.prediction_features = config['feature_order']
 
     def _data_preprocess(self, df_ml: pd.DataFrame) -> pd.DataFrame:
         df_ml['日夜人流差'] = df_ml['行政區平日日間活動人數'] - df_ml['行政區平日夜間停留人數']
