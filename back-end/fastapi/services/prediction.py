@@ -210,8 +210,32 @@ class PredictionService:
                 ),
                 competitor_count=self.prediction_repository.get_competitor_count(city, district, neighborhood, brand_type),
                 ai_insight=self.get_ai_insight(id, score, report),
-                # radar=self.get_radar(id=id, selected_idx=[1,2,3,4,6,9]),
+                radar=self.get_radar(id=id, selected_idx=[1,2,3,4,6,9]),
+                is_success=True
+            )
+        except Exception as e:
             logger.error(e)
+            return Prediction(
+                operation=Operation(
+                    score=0,
+                    report=""
+                ),
+                total_population=TotalPopulation(
+                    neighborhood=0,
+                    district=0,
+                ),
+                median_income=MedianIncome(
+                    neighborhood=0,
+                    district=0,
+                ),
+                competitor_count=0,
+                ai_insight=[],
+                radar=Radar(
+                    labels=[],
+                    values=[],
+                ),
+                is_success=False
+            )
                 radar=Radar(
                     labels=[],
                     values=[],
