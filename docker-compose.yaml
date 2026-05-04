@@ -1,4 +1,3 @@
-version: "3.8"
 services:
   # nginx:
   #   build: ./proxy/nginx
@@ -25,7 +24,7 @@ services:
       - back-end
       
   back-end:
-    build: ./back-end/fastapi
+    build: ./back-end
     container_name: back-end
     restart: always
     environment:

@@ -1,0 +1,10 @@
+fastapi
+uvicorn
+pandas
+xgboost
+shap
+google-cloud-storage
+google-cloud-bigquery
+langchain
+langchain-google-genai
+onnxruntime
