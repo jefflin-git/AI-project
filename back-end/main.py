@@ -4,7 +4,7 @@ from contextlib import asynccontextmanager
 from fastapi.middleware.cors import CORSMiddleware
 from infrastructure.client import gcp_clients
 from application.services.geo import GeoService
-from infrastructure.repositories.geo_from_file import GeoRepository
+from infrastructure.repositories.geo_from_bigquery import GeoRepository
 from application.services.brand import BrandService
 from infrastructure.repositories.brand_from_bigquery import BrandRepository
 from application.services.prediction import PredictionService
