@@ -6,6 +6,7 @@ GEMINI_API_KEY = os.getenv("GEMINI_API_KEY") # docker
 # BUCKET_NAME = "<your-bucket-name>" # local
 # os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = os.path.abspath(os.path.join(os.path.dirname(__file__), "gcp_key", "<your-service-account-key>.json")) # local
 # GEMINI_API_KEY = "<your-gemini-api-key>" # local
+GCP_PROJECT_ID = "your-gcp-project-id" # local
 
 PREDICTION_TABLE_FILE_NAME = "prediction_data.csv"
 REPORT_TABLE_FILE_NAME = "final_expert_report.csv"

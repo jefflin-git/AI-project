@@ -32,5 +32,6 @@ services:
       - BUCKET_NAME=<YOUR_BUCKET_NAME>
       - GOOGLE_APPLICATION_CREDENTIALS=/app/gcp_key/<YOUR_GCP_KEY>.json
       - GEMINI_API_KEY=<your-gemini-api-key>
+      - GCP_PROJECT_ID=<YOUR_GCP_PROJECT_ID>
     ports:
       - "8000:8000"

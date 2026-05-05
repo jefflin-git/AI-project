@@ -6,7 +6,7 @@ from infrastructure.client import gcp_clients
 from application.services.geo import GeoService
 from infrastructure.repositories.geo_from_file import GeoRepository
 from application.services.brand import BrandService
-from infrastructure.repositories.brand_from_list import BrandRepository
+from infrastructure.repositories.brand_from_bigquery import BrandRepository
 from application.services.prediction import PredictionService
 from infrastructure.repositories.gcs import GCSRepository
 from infrastructure.repositories.prediction_from_file import PredictionRepository
