@@ -8,3 +8,4 @@ google-cloud-bigquery
 langchain
 langchain-google-genai
 onnxruntime
+redis

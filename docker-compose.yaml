@@ -33,5 +33,22 @@ services:
       - GOOGLE_APPLICATION_CREDENTIALS=/app/gcp_key/<YOUR_GCP_KEY>.json
       - GEMINI_API_KEY=<your-gemini-api-key>
       - GCP_PROJECT_ID=<YOUR_GCP_PROJECT_ID>
+      - REDIS_HOST=<redis-host>
+      - REDIS_PORT=<redis-port>
+      - REDIS_PASSWORD=<redis-password>
     ports:
       - "8000:8000"
+  
+  redis:
+    build: ./cache/redis
+    container_name: redis
+    restart: always
+    ports:
+      - 6379:6379
+    environment:
+      - TZ=Asia/Taipei
+      - REDIS_PASSWORD=<redis-password>
+    volumes:
+      - ./cache/redis/data:/data
+    command: >
+      sh -c "redis-server /usr/local/etc/redis/redis.conf --requirepass $$REDIS_PASSWORD"
