@@ -3,8 +3,8 @@ from log import Logger
 
 logger = Logger(__name__)
 
-class GcpClientManager:
-    """集中管理 GCP 所有客戶端連線"""
+class ClientManager:
+    """集中管理客戶端連線"""
     def __init__(self):
         self._storage_client: storage.Client = None
         self._bigquery_client: bigquery.Client = None
@@ -52,4 +52,4 @@ class GcpClientManager:
         return self._bigquery_client
 
 # 建立一個全域實例供 Lifespan 使用
-gcp_clients = GcpClientManager()
+client_manager = ClientManager()

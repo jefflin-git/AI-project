@@ -2,7 +2,7 @@ import os
 from fastapi import FastAPI
 from contextlib import asynccontextmanager
 from fastapi.middleware.cors import CORSMiddleware
-from infrastructure.client import gcp_clients
+from infrastructure.client import client_manager
 from application.services.geo import GeoService
 from infrastructure.repositories.geo_from_bigquery import GeoRepository
 from application.services.brand import BrandService
@@ -34,7 +34,7 @@ gemini_service = None
 async def lifespan(app: FastAPI):
     # 啟動時初始化所有基礎設施連線
     global gcs_repository, geo_repository, geo_service, brand_repository, brand_service, gemini_service
-    gcp_clients.init_clients()
+    client_manager.init_clients()
     gcs_repository = GCSRepository()
     # 啟動時執行：下載資料表檔案
     if not os.path.exists(prediction_table_path):
@@ -54,7 +54,7 @@ async def lifespan(app: FastAPI):
     brand_service = BrandService(brand_repository)
     yield
     # 關閉時執行
-    gcp_clients.close_clients()
+    client_manager.close_clients()
     # 關閉時執行（選填）
     if os.path.exists(prediction_table_path):
         os.remove(prediction_table_path)

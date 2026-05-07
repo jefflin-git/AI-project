@@ -1,5 +1,5 @@
 from google.cloud import storage
-from infrastructure.client import gcp_clients
+from infrastructure.client import client_manager
 from log import Logger
 from domain.repositories.storage import IStorageRepository
 
@@ -7,7 +7,7 @@ logger = Logger(__name__)
 
 class GCSRepository(IStorageRepository):
     def __init__(self):
-        self.storage_client: storage.Client = gcp_clients.storage
+        self.storage_client: storage.Client = client_manager.storage
         
     def download_file(self, folder_name: str, file_name: str, local_file_path: str):
         try:
