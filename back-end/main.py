@@ -17,10 +17,13 @@ from common.constants import BUCKET_NAME, PREDICTION_MODEL_PKL_FILE_NAME, SHAP_D
 
 logger = Logger(__name__)
 
-prediction_model_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "infrastructure", "repositories", "models", f"{PREDICTION_MODEL_PKL_FILE_NAME}"))
-shap_database_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "infrastructure", "repositories", "models", f"{SHAP_DATABASE_FILE_NAME}"))
-prediction_table_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "infrastructure", "repositories", "datas", f"{PREDICTION_TABLE_FILE_NAME}"))
-report_table_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "infrastructure", "repositories", "datas", f"{REPORT_TABLE_FILE_NAME}"))
+DATA_FOLDER = os.path.abspath(os.path.join(os.path.dirname(__file__), "infrastructure", "repositories", "datas"))
+MODEL_FOLDER = os.path.abspath(os.path.join(os.path.dirname(__file__), "infrastructure", "repositories", "models"))
+
+prediction_model_path = os.path.abspath(os.path.join(MODEL_FOLDER, f"{PREDICTION_MODEL_PKL_FILE_NAME}"))
+shap_database_path = os.path.abspath(os.path.join(MODEL_FOLDER, f"{SHAP_DATABASE_FILE_NAME}"))
+prediction_table_path = os.path.abspath(os.path.join(DATA_FOLDER, f"{PREDICTION_TABLE_FILE_NAME}"))
+report_table_path = os.path.abspath(os.path.join(DATA_FOLDER, f"{REPORT_TABLE_FILE_NAME}"))
 
 gcs_repository = None
 geo_repository = None
@@ -36,15 +39,26 @@ async def lifespan(app: FastAPI):
     global gcs_repository, geo_repository, geo_service, brand_repository, brand_service, gemini_service
     client_manager.init_clients()
     gcs_repository = GCSRepository()
+    # 啟動時執行：建立資料和模型資料夾
+    if not os.path.exists(DATA_FOLDER):
+        logger.debug("建立資料資料夾")
+        os.makedirs(DATA_FOLDER)
+    if not os.path.exists(MODEL_FOLDER):
+        logger.debug("建立模型資料夾")
+        os.makedirs(MODEL_FOLDER)
     # 啟動時執行：下載資料表檔案
     if not os.path.exists(prediction_table_path):
+        logger.debug(f"下載 {PREDICTION_TABLE_FILE_NAME} 到 {prediction_table_path}")
         gcs_repository.download_file(BUCKET_NAME, PREDICTION_TABLE_FILE_NAME, prediction_table_path)
     if not os.path.exists(report_table_path):
+        logger.debug(f"下載 {REPORT_TABLE_FILE_NAME} 到 {report_table_path}")
         gcs_repository.download_file(BUCKET_NAME, REPORT_TABLE_FILE_NAME, report_table_path)
     # 啟動時執行：下載並載入模型
     if not os.path.exists(prediction_model_path):
+        logger.debug(f"下載 {PREDICTION_MODEL_PKL_FILE_NAME} 到 {prediction_model_path}")
         gcs_repository.download_file(BUCKET_NAME, PREDICTION_MODEL_PKL_FILE_NAME, prediction_model_path)
     if not os.path.exists(shap_database_path):
+        logger.debug(f"下載 {SHAP_DATABASE_FILE_NAME} 到 {shap_database_path}")
         gcs_repository.download_file(BUCKET_NAME, SHAP_DATABASE_FILE_NAME, shap_database_path)
     # 初始化 repository 和 service
     gemini_service = GeminiService()
