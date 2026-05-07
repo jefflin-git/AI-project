@@ -5,6 +5,6 @@ from infrastructure.repositories.bigquery import BigQueryRepository
 class BrandRepository(BigQueryRepository, IBrandRepository):
     def get_brand_list(self) -> list[str]:
         query=f"""
-        SELECT brand FROM `{GCP_PROJECT_ID}.ai_project.brands`;
+        SELECT brand FROM `{GCP_PROJECT_ID}.ai_project.brands` ORDER BY brand ASC;
         """
         return self._fetch_column_as_list(query, "brand")
