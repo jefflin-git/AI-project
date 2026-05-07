@@ -1,5 +1,6 @@
 import os
 
+MODE = os.getenv("MODE") # docker
 GCP_PROJECT_ID = os.getenv("GCP_PROJECT_ID") # docker
 BUCKET_NAME = os.getenv("BUCKET_NAME") # docker
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY") # docker
@@ -11,6 +12,7 @@ REDIS_PASSWORD = os.getenv("REDIS_PASSWORD") # docker
 # BUCKET_NAME = "<your-bucket-name>" # local
 # os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = os.path.abspath(os.path.join(os.path.dirname(__file__), "gcp_key", "<your-service-account-key>.json")) # local
 # GEMINI_API_KEY = "<your-gemini-api-key>" # local
+# MODE = "DEBUG" # local
 # REDIS_HOST = "localhost" # local
 # REDIS_PORT = 6379 # local
 # REDIS_PASSWORD = "<your_strong_password>" # local

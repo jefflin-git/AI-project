@@ -36,6 +36,7 @@ services:
       - REDIS_HOST=<redis-host>
       - REDIS_PORT=<redis-port>
       - REDIS_PASSWORD=<redis-password>
+      - MODE=DEBUG
     ports:
       - "8000:8000"
   
